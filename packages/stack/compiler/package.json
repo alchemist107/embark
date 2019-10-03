@@ -69,7 +69,7 @@
       "**/test/**/*.js"
     ],
     "transform": {
-      "\\.js$": [
+      "\\.(js|ts)$": [
         "babel-jest",
         {
           "rootMode": "upward"
