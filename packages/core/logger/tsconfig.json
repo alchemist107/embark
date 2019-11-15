@@ -3,5 +3,5 @@
     "declaration": true
   },
   "extends": "../../../tsconfig.json",
-  "include": ["index.d.ts", "src/**/*"]
+  "include": ["index.d.ts"]
 }

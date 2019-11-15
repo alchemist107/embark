@@ -1,4 +1,4 @@
-import { Embark, Events } from "embark";
+import { Embark, Events } /* supplied by @types/embark in packages/core/typings */ from "embark";
 import { Logger } from 'embark-logger';
 export default class BlockchainAPI {
   private embark: Embark;

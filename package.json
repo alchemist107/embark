@@ -59,7 +59,7 @@
     "test": "node scripts/monorun --ignore embark-dapp-* --stream test",
     "test:dapps": "lerna run --concurrency=1 --scope embark-dapp-* --stream test",
     "test:full": "npm-run-all test test:dapps",
-    "typecheck": "node scripts/monorun --parallel typecheck",
+    "typecheck": "node scripts/monorun --stream typecheck",
     "watch": "node scripts/monorun --parallel watch",
     "watch:build": "node scripts/monorun --parallel watch:build",
     "watch:lint": "node scripts/monorun --parallel watch:lint",
