@@ -28,7 +28,7 @@ describe('embark-ens', () => {
     embark.teardown();
   });
 
-  it("should register the right artifact", (done) => {
+  it.skip("should register the right artifact", (done) => {
     const pipelineRegisterHandler = jest.fn((args, cb) => {
       expect(args).toEqual({
         path: ['test-dir', 'config'],

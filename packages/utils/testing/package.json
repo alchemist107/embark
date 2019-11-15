@@ -4,6 +4,7 @@
   "description": "Testing",
   "homepage": "https://github.com/embark-framework/embark/tree/master/packages/utils/testing#readme",
   "main": "dist/lib/index.js",
+  "types": "./dist/lib/index.d.ts",
   "repository": {
     "directory": "packages/utils/testing",
     "type": "git",
@@ -25,14 +26,16 @@
     "dist"
   ],
   "embark-collective": {
-    "build:node": true
+    "build:node": true,
+    "typecheck": true
   },
   "scripts": {
     "_build": "npm run solo -- build",
+    "_typecheck": "npm run solo -- typecheck",
     "ci": "npm run qa",
     "clean": "npm run reset",
     "lint": "eslint src/",
-    "qa": "npm-run-all lint _build",
+    "qa": "npm-run-all lint _typecheck _build test",
     "reset": "npx rimraf dist embark-*.tgz package",
     "solo": "embark-solo",
     "test": "jest"
@@ -42,13 +45,13 @@
   },
   "dependencies": {
     "@babel/runtime-corejs3": "7.7.4",
+    "@types/async": "3.0.3",
     "core-js": "3.4.3",
     "refute": "1.0.2",
     "sinon": "7.4.2"
   },
   "devDependencies": {
     "@babel/core": "7.7.4",
-    "@types/async": "3.0.3",
     "babel-jest": "24.9.0",
     "embark-solo": "^5.0.0-alpha.2",
     "eslint": "5.7.0",
