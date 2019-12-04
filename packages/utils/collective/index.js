@@ -3,14 +3,17 @@
 const filterPackages = require('@lerna/filter-packages');
 const {fork, spawn} = require('child_process');
 const {sync: findUp} = require('find-up');
-const {readJsonSync} = require('fs-extra');
+const {existsSync, readJsonSync, writeJsonSync} = require('fs-extra');
 const {sync: glob} = require('glob');
+const isEqual = require('lodash.isequal');
 const minimist = require('minimist');
-const {dirname, join, normalize, relative} = require('path');
-const { Transform } = require('stream');
+const {basename, dirname, join, normalize, relative} = require('path');
+const {Transform} = require('stream');
+
+const EMBARK_COLLECTIVE = 'embark-collective';
 
 module.exports = function (cliArgs = []) {
-  const {action, exclude, include, showPrivate} = processArgs(cliArgs);
+  const {action, exclude, include, showPrivate, solo} = processArgs(cliArgs);
 
   const allPackages = findAllMonorepoPackages();
   const allPkgJsons = allPackages.map(path => readJsonSync(path));
@@ -20,7 +23,7 @@ module.exports = function (cliArgs = []) {
     {action, exclude, include, showPrivate}
   );
 
-  const pkgJsonDict = makePkgJsonDict(
+  const {allPkgJsonDict, filteredPkgJsonDict} = makePkgJsonDict(
     allPackages,
     allPkgJsons,
     filteredPkgJsons
@@ -28,10 +31,13 @@ module.exports = function (cliArgs = []) {
 
   switch (action) {
     case 'build:browser':
-      buildBrowser(cliArgs.slice(1), pkgJsonDict);
+      buildBrowser(cliArgs.slice(1), filteredPkgJsonDict);
       break;
     case 'build:node':
-      buildNode(cliArgs.slice(1), pkgJsonDict);
+      buildNode(cliArgs.slice(1), filteredPkgJsonDict);
+      break;
+    case 'typecheck':
+      typecheck(cliArgs.slice(1), filteredPkgJsonDict, allPkgJsonDict, solo);
       break;
     default:
       throw new Error(`no implementation for ${action} action`);
@@ -45,8 +51,6 @@ function processArgs(cliArgs) {
   } else {
     options = {};
   }
-
-  const solo = !!process.env.EMBARK_SOLO;
 
   const args = minimist(cliArgs);
 
@@ -71,8 +75,9 @@ function processArgs(cliArgs) {
 
   const {_: [action], ignore: exclude, [np]: noPrivate, scope: include} = args;
   const showPrivate = !noPrivate;
+  const solo = !!process.env.EMBARK_SOLO;
 
-  return {action, exclude, include, showPrivate};
+  return {action, exclude, include, showPrivate, solo};
 }
 
 let _monorepoRootPath = null;
@@ -103,14 +108,13 @@ function findAllMonorepoPackages() {
 }
 
 function filterPkgJsons(pkgJsons, {action, exclude, include, showPrivate}) {
-  const embarkCollective = 'embark-collective';
   return filterPackages(
     pkgJsons,
     include,
     exclude,
     showPrivate
   ).filter(pkgJson => (
-    pkgJson && pkgJson[embarkCollective] && pkgJson[embarkCollective][action] &&
+    pkgJson && pkgJson[EMBARK_COLLECTIVE] && pkgJson[EMBARK_COLLECTIVE][action] &&
       !(pkgJson.scripts && pkgJson.scripts[action])
   ));
 }
@@ -119,15 +123,17 @@ function makePkgJsonDict(allPackages, allPkgJsons, filteredPkgJsons) {
   const allPkgJsonDict = {};
   const filteredPkgJsonDict = {};
 
-  allPkgJsons.forEach(({name}, index) => {
-    allPkgJsonDict[name] = allPackages[index];
+  allPkgJsons.forEach((pkgJson, index) => {
+    const {name} = pkgJson;
+    pkgJson._path = allPackages[index];
+    allPkgJsonDict[name] = pkgJson;
   });
 
   filteredPkgJsons.forEach(({name}) => {
     filteredPkgJsonDict[name] = allPkgJsonDict[name];
   });
 
-  return filteredPkgJsonDict;
+  return {allPkgJsonDict, filteredPkgJsonDict};
 }
 
 function labeler(label) {
@@ -143,20 +149,17 @@ function labeler(label) {
 
 function build(babelEnv, outDir, cliArgs, pkgJsonDict) {
   const rootPath = monorepoRootPath();
-
   const babelCmd = process.platform === 'win32' ? 'babel.cmd': 'babel';
   const babelBinPath = join(__dirname, 'node_modules', '.bin', babelCmd);
   const babelConfigPath = join(rootPath, 'babel.config.js');
 
   const sources = Object.values(pkgJsonDict).map(
-    path => relative(rootPath, join(dirname(path), 'src'))
+    ({_path}) => relative(rootPath, join(dirname(_path), 'src'))
   );
 
   if (!sources.length) {
     return;
   }
-
-  process.chdir(rootPath);
 
   const subp = spawn(babelBinPath, [
     ...sources,
@@ -170,15 +173,19 @@ function build(babelEnv, outDir, cliArgs, pkgJsonDict) {
     '--source-maps',
     ...cliArgs
   ], {
+    cwd: rootPath,
     env: {
       ...process.env,
-      BABEL_ENV: babelEnv
+      BABEL_ENV: babelEnv,
+      FORCE_COLOR: '1'
     },
     stdio: ['inherit', 'pipe', 'pipe']
   });
 
   subp.stdout.pipe(labeler(`build:${babelEnv}`)).pipe(process.stdout);
   subp.stderr.pipe(labeler(`build:${babelEnv}`)).pipe(process.stderr);
+
+  subp.on('close', code => process.exit(code));
 }
 
 function buildBrowser(cliArgs, pkgJsonDict) {
@@ -187,6 +194,187 @@ function buildBrowser(cliArgs, pkgJsonDict) {
 
 function buildNode(cliArgs, pkgJsonDict) {
   build('node', 'dist', cliArgs, pkgJsonDict);
+}
+
+function typecheck(cliArgs, filteredPkgJsonDict, allPkgJsonDict, solo) {
+  let doClean = true;
+  let noClean = cliArgs.indexOf('--no-clean');
+  if (noClean > -1) {
+    cliArgs.splice(noClean, 1);
+    doClean = false;
+  }
+
+  const rootPath = monorepoRootPath();
+  const collectiveTsConfigPath = join(rootPath, '.tsconfig.collective.json');
+  const typecheckCmd = process.platform === 'win32' ? 'tsc.cmd': 'tsc';
+  const typecheckBinPath = join(__dirname, 'node_modules', '.bin', typecheckCmd);
+
+  const allPkgNames = new Set(Object.keys(allPkgJsonDict));
+  const seen = {};
+
+  Object.values(filteredPkgJsonDict).forEach(pkgJson => {
+    const packages = [pkgJson];
+    for (const _pkgJson of packages) {
+      if (seen[_pkgJson.name]) continue;
+      seen[_pkgJson.name] = true;
+      const pkgTsConfig = {
+        compilerOptions: {
+          composite: true,
+          declarationDir: "./dist",
+        },
+        extends: relative(
+          dirname(_pkgJson._path),
+          join(rootPath, 'tsconfig.json')
+        ),
+        include: []
+      };
+
+      pkgTsConfig.compilerOptions.rootDir = './src';
+      if (basename(dirname(_pkgJson.main)) === 'lib') {
+        pkgTsConfig.include.push('src/lib/**/*');
+      } else {
+        pkgTsConfig.include.push('src/**/*');
+      }
+
+      let refs;
+      for (const pkgName of [...new Set([
+        ...Object.keys(_pkgJson.dependencies),
+        ...Object.keys(_pkgJson.devDependencies)
+      ])].filter(n => n !== 'embark-solo')) {
+        if (allPkgNames.has(pkgName)) {
+          if (!refs) {
+            refs = true;
+            pkgTsConfig.references = [];
+          }
+
+          const depPkgJson = allPkgJsonDict[pkgName];
+
+          if (depPkgJson[EMBARK_COLLECTIVE] && depPkgJson[EMBARK_COLLECTIVE].typecheck) {
+            pkgTsConfig.references.push({
+              path: relative(dirname(_pkgJson._path), dirname(depPkgJson._path))
+            });
+
+            if (!seen[pkgName]) {
+              packages.push(depPkgJson);
+            }
+          }
+        }
+      }
+
+      if (pkgTsConfig.references) {
+        pkgTsConfig.references.sort(refPathSort);
+      }
+
+      const pkgTsConfigPath = join(dirname(_pkgJson._path), 'tsconfig.json');
+
+      if (!existsSync(pkgTsConfigPath) ||
+          !isEqual(pkgTsConfig, readJsonSync(pkgTsConfigPath))) {
+        writeJsonSync(pkgTsConfigPath, pkgTsConfig, {spaces: 2});
+      }
+    }
+  });
+
+  if (solo) {
+    const packagePath = dirname(Object.values(filteredPkgJsonDict)[0]._path);
+
+    const doSolo = () => {
+      const subp = spawn(typecheckBinPath, [
+        '--build',
+        '--pretty',
+        ...cliArgs
+      ], {
+        cwd: packagePath,
+        stdio: 'inherit'
+      });
+
+      subp.on('close', code => process.exit(code));
+    };
+
+    if (doClean) {
+      const subp = spawn(typecheckBinPath, [
+        '--build',
+        '--clean'
+      ], {
+        cwd: packagePath,
+        stdio: 'inherit'
+      });
+
+      subp.on('close', code => {
+        if (code) process.exit(code);
+        doSolo();
+      });
+    } else {
+      doSolo();
+    }
+  } else {
+    const collectiveTsConfig = {
+      files: [],
+      references: []
+    };
+
+    Object.values(filteredPkgJsonDict).forEach(pkgJson => {
+      if (pkgJson[EMBARK_COLLECTIVE] && pkgJson[EMBARK_COLLECTIVE].typecheck) {
+        collectiveTsConfig.references.push({
+          path: relative(rootPath, dirname(pkgJson._path))
+        });
+      }
+    });
+
+    collectiveTsConfig.references.sort(refPathSort);
+
+    if (!existsSync(collectiveTsConfigPath) ||
+        !isEqual(collectiveTsConfig, readJsonSync(collectiveTsConfigPath))) {
+      writeJsonSync(collectiveTsConfigPath, collectiveTsConfig, {spaces: 2});
+    }
+
+    const doCollective = () => {
+      const subp = spawn(typecheckBinPath, [
+        '--build',
+        collectiveTsConfigPath,
+        '--pretty',
+        ...cliArgs
+      ], {
+        cwd: rootPath,
+        stdio: ['inherit', 'pipe', 'pipe']
+      });
+
+      subp.stdout.pipe(labeler('typecheck')).pipe(process.stdout);
+      subp.stderr.pipe(labeler('typecheck')).pipe(process.stderr);
+
+      subp.on('close', code => process.exit(code));
+    };
+
+    if (doClean) {
+      const subp = spawn(typecheckBinPath, [
+        '--build',
+        collectiveTsConfigPath,
+        '--clean'
+      ], {
+        cwd: rootPath,
+        stdio: ['inherit', 'pipe', 'pipe']
+      });
+
+      subp.stdout.pipe(labeler('typecheck')).pipe(process.stdout);
+      subp.stderr.pipe(labeler('typecheck')).pipe(process.stderr);
+
+      subp.on('close', code => {
+        if (code) process.exit(code);
+        doCollective();
+      });
+    } else {
+      doCollective();
+    }
+  }
+}
+
+function refPathSort({path: pathA}, {path: pathB}) {
+  if (pathA < pathB) {
+    return -1;
+  } else if (pathA > pathB) {
+    return 1;
+  } else {
+    return 0;
+  }
 }
 
 const embarkInsidePkg = 'embark-inside-monorepo';

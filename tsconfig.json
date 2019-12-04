@@ -1,6 +1,9 @@
 {
   "compilerOptions": {
     "allowJs": true,
+    // "checkJs": true,
+    "declaration": true,
+    "declarationMap": true,
     "emitDeclarationOnly": true,
     "esModuleInterop": true,
     "isolatedModules": true,
@@ -10,5 +13,14 @@
     "resolveJsonModule": true,
     "strict": true,
     "target": "ESNext"
-  }
+  },
+  "exclude": [
+    "**/.embark/*",
+    "**/dist/*",
+    "**/node_modules/*",
+    "packages/cockpit/ui/build",
+    "packages/cockpit/ui/public/vsdir",
+    "node_modules",
+    "site/public"
+  ]
 }

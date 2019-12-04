@@ -1,7 +1,5 @@
 {
-  "compilerOptions": {
-    "declaration": true
-  },
+  "compilerOptions": {},
   "extends": "../../../tsconfig.json",
   "include": ["index.d.ts"]
 }
