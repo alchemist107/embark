@@ -2,7 +2,7 @@ import { fileMatchesPattern } from './utils/utils';
 import { __ } from 'embark-i18n';
 import { dappPath, embarkPath, isEs6Module, joinPath } from 'embark-utils';
 import { Logger } from 'embark-logger';
-const constants = require('embark-core/constants');
+const constants = require('../constants');
 const fs = require('fs-extra');
 const deepEqual = require('deep-equal');
 

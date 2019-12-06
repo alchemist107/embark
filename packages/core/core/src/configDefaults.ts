@@ -1,6 +1,6 @@
 import {recursiveMerge} from "embark-utils";
 
-const constants = require('embark-core/constants');
+const constants = require('../constants');
 
 export function getBlockchainDefaults(env) {
   const defaults = {
