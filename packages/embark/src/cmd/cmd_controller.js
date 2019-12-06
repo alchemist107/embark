@@ -1,4 +1,5 @@
-import { Config, Engine, Events, fs, TemplateGenerator } from 'embark-core';
+import { Config, Events, fs, TemplateGenerator } from 'embark-core';
+import { Engine } from 'embark-engine';
 import { __ } from 'embark-i18n';
 import { dappPath, embarkPath, joinPath, setUpEnv } from 'embark-utils';
 import { Logger } from 'embark-logger';

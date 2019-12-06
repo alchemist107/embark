@@ -1,6 +1,7 @@
 import async from "async";
-import { Callback, Embark, Events, Logger } /* supplied by @types/embark in packages/core/typings */ from "embark";
+import { Callback, Embark, Events } /* supplied by @types/embark in packages/core/typings */ from "embark";
 import { __ } from "embark-i18n";
+import { Logger } from "embark-logger";
 import Web3 from "web3";
 const { blockchain: blockchainConstants } = require("embark-core/constants");
 import RpcModifier from "./rpcModifier";

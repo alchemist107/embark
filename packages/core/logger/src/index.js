@@ -1,7 +1,7 @@
 require('colors');
 const fs = require('fs');
 const date = require('date-and-time');
-const { escapeHtml } = require('embark-utils');
+const { escapeHtml } = require('./utils');
 const util = require('util');
 
 const DATE_FORMAT = 'YYYY-MM-DD HH:mm:ss:SSS';

@@ -86,6 +86,7 @@
     "embark-deploy-tracker": "^5.0.0-alpha.2",
     "embark-deployment": "^5.0.0-alpha.3",
     "embark-embarkjs": "^5.0.0-alpha.3",
+    "embark-engine": "^5.0.0-alpha.3",
     "embark-ens": "^5.0.0-alpha.3",
     "embark-ethereum-blockchain-client": "^5.0.0-alpha.3",
     "embark-ganache": "^5.0.0-alpha.2",

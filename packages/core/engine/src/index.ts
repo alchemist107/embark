@@ -1,10 +1,18 @@
-import { Config } from './config';
-import { Plugins } from './plugins';
-import { EmbarkEmitter as Events } from './events';
-import { ProcessManager } from './processes/processManager';
-import { IPC } from './ipc';
-import { ServicesMonitor } from './services_monitor';
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//
+// still need to move the rest of the embark-* packages loaded by this module
+// into this package's package.json dependencies
+//
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+import {
+  Config,
+  Events,
+  IPC,
+  Plugins,
+  ProcessManager,
+  ServicesMonitor
+} from 'embark-core';
 import { normalizeInput } from 'embark-utils';
 import { Logger } from 'embark-logger';
 
@@ -128,13 +136,13 @@ export class Engine {
 
   registerModule(moduleName, options) {
     if (this.plugins) {
-      this.plugins.loadInternalPlugin(moduleName, options || {});
+      this.plugins.loadInternalPlugin(require.resolve(moduleName), options || {});
     }
   }
 
   registerModulePackage(moduleName, options?: any) {
     if (this.plugins) {
-      return this.plugins.loadInternalPlugin(moduleName, options || {}, true);
+      return this.plugins.loadInternalPlugin(require.resolve(moduleName), options || {}, true);
     }
   }
 

@@ -1,6 +1,7 @@
 import { sign, transaction } from "@omisego/omg-js-util";
-import { Callback, Embark, Events, Logger } /* supplied by @types/embark in packages/core/typings */ from "embark";
+import { Callback, Embark, Events } /* supplied by @types/embark in packages/core/typings */ from "embark";
 import { __ } from "embark-i18n";
+import { Logger } from "embark-logger";
 import Web3 from "web3";
 import RpcModifier from "./rpcModifier";
 

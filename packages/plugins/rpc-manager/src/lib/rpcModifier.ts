@@ -1,4 +1,5 @@
-import { Embark, Events, Logger } /* supplied by @types/embark in packages/core/typings */ from "embark";
+import { Embark, Events } /* supplied by @types/embark in packages/core/typings */ from "embark";
+import { Logger } from "embark-logger";
 import { AccountParser, dappPath } from "embark-utils";
 import Web3 from "web3";
 

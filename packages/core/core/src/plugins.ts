@@ -125,7 +125,7 @@ export class Plugins {
   }
 
   loadPlugin(pluginName, pluginConfig) {
-    const pluginPath = dappPath('node_modules', pluginName);
+    const pluginPath = require.resolve(pluginName, {paths: [dappPath()]});
     let plugin = require(pluginPath);
 
     if (plugin.default) {
