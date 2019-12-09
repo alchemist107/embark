@@ -7,12 +7,14 @@ let async = require('async');
 const constants = require('embark-core/constants');
 const { reset: embarkReset, paths: defaultResetPaths } = require('embark-reset');
 const cloneDeep = require('clone-deep');
+import { readJsonSync } from 'fs-extra';
+import { join } from 'path';
 
 setUpEnv(joinPath(__dirname, '../../'));
 
 require('colors');
 
-let pkg = require('../../package.json');
+const pkg = readJsonSync(join(__dirname, '../../package.json'));
 
 class EmbarkController {
 

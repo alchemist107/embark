@@ -35,7 +35,13 @@
   ],
   "embark-collective": {
     "build:node": true,
-    "typecheck": true
+    "typecheck": {
+      "include": [
+        "src/bin/**/*",
+        "src/cmd/**/*",
+        "src/lib/**/*"
+      ]
+    }
   },
   "scripts": {
     "_build": "npm run solo -- build",

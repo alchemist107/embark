@@ -237,7 +237,7 @@ function typecheck(cliArgs, filteredPkgJsonDict, allPkgJsonDict, solo) {
         extends: relative(
           dirname(_pkgJson._path),
           baseTsConfigPath
-        ),
+        ).replace(/\\/g, '/'),
         include: []
       };
 
@@ -266,7 +266,10 @@ function typecheck(cliArgs, filteredPkgJsonDict, allPkgJsonDict, solo) {
 
           if (depPkgJsonTsConfig) {
             pkgTsConfig.references.push({
-              path: relative(dirname(_pkgJson._path), dirname(depPkgJson._path))
+              path: relative(
+                dirname(_pkgJson._path),
+                dirname(depPkgJson._path)
+              ).replace(/\\/g, '/')
             });
 
             if (!seen[pkgName]) {
@@ -313,7 +316,7 @@ function typecheck(cliArgs, filteredPkgJsonDict, allPkgJsonDict, solo) {
   Object.values(allPkgJsonDict).forEach(pkgJson => {
     if (pkgJson[EMBARK_COLLECTIVE] && pkgJson[EMBARK_COLLECTIVE].typecheck) {
       rootTsConfig.references.push({
-        path: relative(rootPath, dirname(pkgJson._path))
+        path: relative(rootPath, dirname(pkgJson._path)).replace(/\\/g, '/')
       });
     }
   });
@@ -365,7 +368,7 @@ function typecheck(cliArgs, filteredPkgJsonDict, allPkgJsonDict, solo) {
     Object.values(filteredPkgJsonDict).forEach(pkgJson => {
       if (pkgJson[EMBARK_COLLECTIVE] && pkgJson[EMBARK_COLLECTIVE].typecheck) {
         collectiveTsConfig.references.push({
-          path: relative(rootPath, dirname(pkgJson._path))
+          path: relative(rootPath, dirname(pkgJson._path)).replace(/\\/g, '/')
         });
       }
     });

@@ -1,8 +1,9 @@
 import { Config, Events } from 'embark-core';
 import { Logger } from 'embark-logger';
 import { readJsonSync } from 'fs-extra';
+import { join } from 'path';
 
-const pkg = readJsonSync('../../package.json');
+const pkg = readJsonSync(join(__dirname, '../../package.json'));
 
 export default class Embark {
 
