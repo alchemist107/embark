@@ -1,1 +1,3 @@
-module.exports = require('..').default;
+import embarkWhisperNewWeb3 from '..';
+
+module.exports = embarkWhisperNewWeb3;

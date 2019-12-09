@@ -38,8 +38,8 @@
     "ci": "npm run qa",
     "clean": "npm run reset",
     "lint": "eslint processes.js src/",
-    "qa": "npm-run-all lint \"_typecheck -- --no-clean\" _build",
-    "reset": "npx rimraf dist embark-*.tgz package tsconfig.tsbuildinfo",
+    "qa": "npm-run-all lint _typecheck _build",
+    "reset": "npx rimraf dist embark-*.tgz package",
     "solo": "embark-solo"
   },
   "eslintConfig": {

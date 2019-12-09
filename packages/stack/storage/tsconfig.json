@@ -2,7 +2,8 @@
   "compilerOptions": {
     "composite": true,
     "declarationDir": "./dist",
-    "rootDir": "./src"
+    "rootDir": "./src",
+    "tsBuildInfoFile": "./node_modules/.cache/tsc/tsconfig.embark-storage.tsbuildinfo"
   },
   "extends": "../../../tsconfig.base.json",
   "include": [

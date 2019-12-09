@@ -27,8 +27,8 @@
     "_typecheck": "npm run solo -- typecheck",
     "ci": "npm run qa",
     "clean": "npm run reset",
-    "qa": "npm-run-all \"_typecheck -- --no-clean\"",
-    "reset": "npx rimraf dist embark-*.tgz package tsconfig.tsbuildinfo",
+    "qa": "npm-run-all _typecheck",
+    "reset": "npx rimraf dist embark-*.tgz package",
     "solo": "embark-solo"
   },
   "dependencies": {

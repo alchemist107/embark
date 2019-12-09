@@ -2,7 +2,8 @@
   "compilerOptions": {
     "composite": true,
     "declarationDir": "./dist",
-    "rootDir": "./src"
+    "rootDir": "./src",
+    "tsBuildInfoFile": "./node_modules/.cache/tsc/tsconfig.embark.tsbuildinfo"
   },
   "extends": "../../tsconfig.base.json",
   "include": [
@@ -29,6 +30,21 @@
     },
     {
       "path": "../core/utils"
+    },
+    {
+      "path": "../embarkjs/ens"
+    },
+    {
+      "path": "../embarkjs/ipfs"
+    },
+    {
+      "path": "../embarkjs/swarm"
+    },
+    {
+      "path": "../embarkjs/web3"
+    },
+    {
+      "path": "../embarkjs/whisper"
     },
     {
       "path": "../plugins/debugger"

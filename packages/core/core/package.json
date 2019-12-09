@@ -40,8 +40,8 @@
     "lint": "npm-run-all lint:*",
     "lint:js": "eslint process.js src/",
     "lint:ts": "tslint -c tslint.json \"src/**/*.ts\"",
-    "qa": "npm-run-all lint \"_typecheck -- --no-clean\" _build",
-    "reset": "npx rimraf dist embark-*.tgz package tsconfig.tsbuildinfo",
+    "qa": "npm-run-all lint _typecheck _build",
+    "reset": "npx rimraf dist embark-*.tgz package",
     "solo": "embark-solo"
   },
   "eslintConfig": {
@@ -58,6 +58,7 @@
     "embark-i18n": "^5.0.0-alpha.2",
     "embark-logger": "^5.0.0-alpha.2",
     "embark-utils": "^5.0.0-alpha.2",
+    "find-up": "4.1.0",
     "flatted": "0.2.3",
     "fs-extra": "8.1.0",
     "globule": "1.2.1",

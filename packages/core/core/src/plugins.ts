@@ -6,6 +6,8 @@ import { Config } from './config';
 import * as async from 'async';
 import { dappPath, embarkPath } from 'embark-utils';
 import { Logger } from 'embark-logger';
+import findUp from 'find-up';
+import { dirname } from 'path';
 
 export class Plugins {
 
@@ -125,7 +127,9 @@ export class Plugins {
   }
 
   loadPlugin(pluginName, pluginConfig) {
-    const pluginPath = require.resolve(pluginName, {paths: [dappPath()]});
+    const pluginPath = dirname(findUp.sync('package.json', {
+      cwd: dirname(require.resolve(pluginName, {paths: [dappPath()]}))
+    }) as string);
     let plugin = require(pluginPath);
 
     if (plugin.default) {

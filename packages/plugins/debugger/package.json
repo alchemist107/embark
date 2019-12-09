@@ -37,8 +37,8 @@
     "clean": "npm run reset",
     "lint": "npm-run-all lint:*",
     "lint:ts": "tslint -c tslint.json \"src/**/*.ts\"",
-    "qa": "npm-run-all lint \"_typecheck -- --no-clean\" _build",
-    "reset": "npx rimraf .nyc_output coverage dist embark-*.tgz package tsconfig.tsbuildinfo",
+    "qa": "npm-run-all lint _typecheck _build",
+    "reset": "npx rimraf .nyc_output coverage dist embark-*.tgz package",
     "solo": "embark-solo"
   },
   "dependencies": {

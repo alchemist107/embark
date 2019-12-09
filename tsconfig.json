@@ -32,6 +32,24 @@
       "path": "packages/embark"
     },
     {
+      "path": "packages/embarkjs/embarkjs"
+    },
+    {
+      "path": "packages/embarkjs/ens"
+    },
+    {
+      "path": "packages/embarkjs/ipfs"
+    },
+    {
+      "path": "packages/embarkjs/swarm"
+    },
+    {
+      "path": "packages/embarkjs/web3"
+    },
+    {
+      "path": "packages/embarkjs/whisper"
+    },
+    {
       "path": "packages/plugins/accounts-manager"
     },
     {

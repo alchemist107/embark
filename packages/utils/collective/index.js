@@ -200,10 +200,11 @@ function buildNode(cliArgs, pkgJsonDict) {
 }
 
 function typecheck(cliArgs, filteredPkgJsonDict, allPkgJsonDict, solo) {
-  let doClean = true;
-  let noClean = cliArgs.indexOf('--no-clean');
-  if (noClean > -1) {
-    cliArgs.splice(noClean, 1);
+  let doClean = cliArgs.indexOf('--clean');
+  if (doClean > -1) {
+    cliArgs.splice(doClean, 1);
+    doClean = true;
+  } else {
     doClean = false;
   }
 
@@ -230,7 +231,8 @@ function typecheck(cliArgs, filteredPkgJsonDict, allPkgJsonDict, solo) {
       const pkgTsConfig = {
         compilerOptions: {
           composite: true,
-          declarationDir: "./dist",
+          declarationDir: './dist',
+          tsBuildInfoFile: `./node_modules/.cache/tsc/tsconfig.${_pkgJson.name}.tsbuildinfo`
         },
         extends: relative(
           dirname(_pkgJson._path),
@@ -240,7 +242,8 @@ function typecheck(cliArgs, filteredPkgJsonDict, allPkgJsonDict, solo) {
       };
 
       pkgTsConfig.compilerOptions.rootDir = './src';
-      if (basename(dirname(_pkgJson.main)) === 'lib') {
+      if (basename(dirname(_pkgJson.main)) === 'lib' ||
+          basename(dirname(dirname(_pkgJson.main))) === 'lib') {
         pkgTsConfig.include.push('src/lib/**/*');
       } else {
         pkgTsConfig.include.push('src/**/*');
@@ -262,18 +265,6 @@ function typecheck(cliArgs, filteredPkgJsonDict, allPkgJsonDict, solo) {
                                    depPkgJson[EMBARK_COLLECTIVE].typecheck);
 
           if (depPkgJsonTsConfig) {
-            const rootRelativePath = relative(
-              rootPath,
-              dirname(depPkgJson._path)
-            );
-            if (!collectiveTsConfig.references.some(({path}) => (
-              path == rootRelativePath
-            ))) {
-              collectiveTsConfig.references.push({
-                path: rootRelativePath
-              });
-            }
-
             pkgTsConfig.references.push({
               path: relative(dirname(_pkgJson._path), dirname(depPkgJson._path))
             });
@@ -294,7 +285,7 @@ function typecheck(cliArgs, filteredPkgJsonDict, allPkgJsonDict, solo) {
       if (isPlainObject(_pkgJsonTsConfig)) {
         mergeWith(pkgTsConfig, _pkgJsonTsConfig, (_objValue, srcValue, key) => {
           // cf. https://www.typescriptlang.org/docs/handbook/tsconfig-json.html
-          if (["exclude", "files", "include"].includes(key)) {
+          if (['exclude', 'files', 'include'].includes(key)) {
             return srcValue;
           }
           return undefined;
@@ -373,14 +364,9 @@ function typecheck(cliArgs, filteredPkgJsonDict, allPkgJsonDict, solo) {
   } else {
     Object.values(filteredPkgJsonDict).forEach(pkgJson => {
       if (pkgJson[EMBARK_COLLECTIVE] && pkgJson[EMBARK_COLLECTIVE].typecheck) {
-        const rootRelativePath = relative(rootPath, dirname(pkgJson._path));
-        if (!collectiveTsConfig.references.some(({path}) => (
-          path == rootRelativePath
-        ))) {
-          collectiveTsConfig.references.push({
-            path: rootRelativePath
-          });
-        }
+        collectiveTsConfig.references.push({
+          path: relative(rootPath, dirname(pkgJson._path))
+        });
       }
     });
 

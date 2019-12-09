@@ -43,8 +43,8 @@
     "ci": "npm run qa",
     "clean": "npm run reset",
     "lint": "eslint bin/embark src/bin/ src/lib/",
-    "qa": "npm-run-all lint \"_typecheck -- --no-clean\" _build test",
-    "reset": "npx rimraf .nyc_output coverage dist embark-*.tgz package tsconfig.tsbuildinfo",
+    "qa": "npm-run-all lint _typecheck _build test",
+    "reset": "npx rimraf .nyc_output coverage dist embark-*.tgz package",
     "solo": "embark-solo",
     "test": "nyc --reporter=html --reporter=json mocha \"dist/test/**/*.js\" --exit --no-timeouts --require ./scripts/test.js --require source-map-support/register"
   },
