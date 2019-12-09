@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "composite": true,
+    "declarationDir": "./dist",
+    "rootDir": "./src"
+  },
+  "extends": "../../../tsconfig.base.json",
+  "include": [
+    "src/lib/**/*"
+  ],
+  "references": [
+    {
+      "path": "../core"
+    },
+    {
+      "path": "../i18n"
+    },
+    {
+      "path": "../logger"
+    },
+    {
+      "path": "../utils"
+    }
+  ]
+}

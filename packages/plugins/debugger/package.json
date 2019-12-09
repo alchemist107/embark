@@ -27,21 +27,19 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "embark-collective": {
-    "build:node": true
+    "build:node": true,
+    "typecheck": true
   },
   "scripts": {
     "_build": "npm run solo -- build",
+    "_typecheck": "npm run solo -- typecheck",
     "ci": "npm run qa",
     "clean": "npm run reset",
     "lint": "npm-run-all lint:*",
     "lint:ts": "tslint -c tslint.json \"src/**/*.ts\"",
-    "qa": "npm-run-all lint typecheck _build",
-    "reset": "npx rimraf .nyc_output coverage dist embark-*.tgz package",
-    "solo": "embark-solo",
-    "start": "npm run watch",
-    "typecheck": "tsc",
-    "watch": "run-p watch:*",
-    "watch:typecheck": "npm run typecheck -- --preserveWatchOutput --watch"
+    "qa": "npm-run-all lint \"_typecheck -- --no-clean\" _build",
+    "reset": "npx rimraf .nyc_output coverage dist embark-*.tgz package tsconfig.tsbuildinfo",
+    "solo": "embark-solo"
   },
   "dependencies": {
     "@babel/runtime-corejs3": "7.7.4",

@@ -1,0 +1,55 @@
+{
+  "compilerOptions": {
+    "composite": true,
+    "declarationDir": "./dist",
+    "rootDir": "./src"
+  },
+  "extends": "../../tsconfig.base.json",
+  "include": [
+    "src/lib/**/*"
+  ],
+  "references": [
+    {
+      "path": "../core/code-runner"
+    },
+    {
+      "path": "../core/core"
+    },
+    {
+      "path": "../core/engine"
+    },
+    {
+      "path": "../core/i18n"
+    },
+    {
+      "path": "../core/logger"
+    },
+    {
+      "path": "../core/reset"
+    },
+    {
+      "path": "../core/utils"
+    },
+    {
+      "path": "../plugins/debugger"
+    },
+    {
+      "path": "../plugins/deploy-tracker"
+    },
+    {
+      "path": "../plugins/graph"
+    },
+    {
+      "path": "../plugins/scaffolding"
+    },
+    {
+      "path": "../plugins/solidity"
+    },
+    {
+      "path": "../stack/compiler"
+    },
+    {
+      "path": "../stack/contracts-manager"
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-import { Embark, Events } /* supplied by @types/embark in packages/core/typings */ from "embark";
+import { Embark, EmbarkEvents } from "embark-core";
 import { __ } from "embark-i18n";
 import { Logger } from "embark-logger";
 import { buildUrl, findNextPort } from "embark-utils";
@@ -9,7 +9,7 @@ const constants = require("embark-core/constants");
 
 export default class ProxyManager {
   private readonly logger: Logger;
-  private readonly events: Events;
+  private readonly events: EmbarkEvents;
   private wsProxy: any;
   private httpProxy: any;
   private plugins: any;

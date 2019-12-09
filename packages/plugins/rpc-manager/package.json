@@ -2,8 +2,6 @@
   "name": "embark-rpc-manager",
   "version": "5.0.0-alpha.3",
   "description": "Embark RPC Manager",
-  "main": "./dist/lib/index.js",
-  "types": "./dist/lib/index.d.ts",
   "repository": {
     "directory": "packages/plugins/embark-rpc-manager",
     "type": "git",
@@ -24,6 +22,8 @@
   "files": [
     "dist/"
   ],
+  "main": "./dist/lib/index.js",
+  "types": "./dist/lib/index.d.ts",
   "embark-collective": {
     "build:node": true,
     "typecheck": true
@@ -37,7 +37,7 @@
     "lint:js": "eslint src/",
     "lint:ts": "tslint -c tslint.json \"src/**/*.ts\"",
     "qa": "npm-run-all lint \"_typecheck -- --no-clean\" _build test",
-    "reset": "npx rimraf .nyc_output coverage dist embark-*.tgz tsconfig.json tsconfig.tsbuildinfo package",
+    "reset": "npx rimraf .nyc_output coverage dist embark-*.tgz package tsconfig.tsbuildinfo",
     "solo": "embark-solo",
     "test": "nyc --reporter=html --reporter=json mocha \"dist/test/**/*.js\" --exit --no-timeouts --require source-map-support/register"
   },

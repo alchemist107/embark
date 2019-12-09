@@ -1,7 +1,7 @@
 import bodyParser from "body-parser";
 import "colors";
 import cors from "cors";
-import {Embark, Plugins} /* supplied by @types/embark in packages/core/typings */ from "embark";
+import {Embark, EmbarkPlugins} from "embark-core";
 import { __ } from "embark-i18n";
 import {embarkPath, findMonorepoPackageFromRootSync, isInsideMonorepoSync, monorepoRootPathSync} from "embark-utils";
 import express, {NextFunction, Request, Response} from "express";
@@ -31,7 +31,7 @@ export default class Server {
 
   private openSockets = new Set<net.Socket>();
 
-  constructor(private embark: Embark, private port: number, private hostname: string, private plugins: Plugins) {
+  constructor(private embark: Embark, private port: number, private hostname: string, private plugins: EmbarkPlugins) {
     this.isInsideMonorepo = isInsideMonorepoSync();
     if (this.isInsideMonorepo) {
       this.monorepoRootPath = monorepoRootPathSync();

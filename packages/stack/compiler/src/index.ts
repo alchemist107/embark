@@ -1,4 +1,4 @@
-import { Callback, CompilerPluginObject, Embark, Plugins /* supplied by @types/embark in packages/core/typings */ } from "embark";
+import { Callback, CompilerPluginObject, Embark, EmbarkPlugins } from "embark-core";
 import { __ } from "embark-i18n";
 import * as os from "os";
 import * as path from "path";
@@ -9,7 +9,7 @@ const { File, Types, dappPath } = require("embark-utils");
 export default class Compiler {
   private fs: any;
   private logger: any;
-  private plugins: Plugins;
+  private plugins: EmbarkPlugins;
 
   constructor(embark: Embark, options: any) {
     this.fs = embark.fs;

@@ -3,8 +3,8 @@ import { __ } from 'embark-i18n';
 const Web3 = require('web3');
 
 const { blockchain: blockchainConstants } = require('embark-core/constants');
-import { dappPath, getAddressToContract, getTransactionParams, hexToNumber } from 'embark-utils';
-
+import { dappPath, hexToNumber } from 'embark-utils';
+import { getAddressToContract, getTransactionParams } from './transactionUtils';
 
 const Transaction = require('ethereumjs-tx');
 const ethUtil = require('ethereumjs-util');

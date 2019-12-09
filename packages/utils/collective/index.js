@@ -6,8 +6,11 @@ const {sync: findUp} = require('find-up');
 const {existsSync, readJsonSync, writeJsonSync} = require('fs-extra');
 const {sync: glob} = require('glob');
 const isEqual = require('lodash.isequal');
+const isPlainObject = require('lodash.isplainobject');
+const mergeWith = require('lodash.mergewith');
 const minimist = require('minimist');
 const {basename, dirname, join, normalize, relative} = require('path');
+const sortKeys = require('sort-keys');
 const {Transform} = require('stream');
 
 const EMBARK_COLLECTIVE = 'embark-collective';
@@ -205,12 +208,19 @@ function typecheck(cliArgs, filteredPkgJsonDict, allPkgJsonDict, solo) {
   }
 
   const rootPath = monorepoRootPath();
+  const rootTsConfigPath = join(rootPath, 'tsconfig.json');
+  const baseTsConfigPath = join(rootPath, 'tsconfig.base.json');
   const collectiveTsConfigPath = join(rootPath, '.tsconfig.collective.json');
   const typecheckCmd = process.platform === 'win32' ? 'tsc.cmd': 'tsc';
   const typecheckBinPath = join(__dirname, 'node_modules', '.bin', typecheckCmd);
 
   const allPkgNames = new Set(Object.keys(allPkgJsonDict));
   const seen = {};
+
+  const collectiveTsConfig = {
+    files: [],
+    references: []
+  };
 
   Object.values(filteredPkgJsonDict).forEach(pkgJson => {
     const packages = [pkgJson];
@@ -224,7 +234,7 @@ function typecheck(cliArgs, filteredPkgJsonDict, allPkgJsonDict, solo) {
         },
         extends: relative(
           dirname(_pkgJson._path),
-          join(rootPath, 'tsconfig.json')
+          baseTsConfigPath
         ),
         include: []
       };
@@ -248,8 +258,22 @@ function typecheck(cliArgs, filteredPkgJsonDict, allPkgJsonDict, solo) {
           }
 
           const depPkgJson = allPkgJsonDict[pkgName];
+          const depPkgJsonTsConfig = (depPkgJson[EMBARK_COLLECTIVE] &&
+                                   depPkgJson[EMBARK_COLLECTIVE].typecheck);
 
-          if (depPkgJson[EMBARK_COLLECTIVE] && depPkgJson[EMBARK_COLLECTIVE].typecheck) {
+          if (depPkgJsonTsConfig) {
+            const rootRelativePath = relative(
+              rootPath,
+              dirname(depPkgJson._path)
+            );
+            if (!collectiveTsConfig.references.some(({path}) => (
+              path == rootRelativePath
+            ))) {
+              collectiveTsConfig.references.push({
+                path: rootRelativePath
+              });
+            }
+
             pkgTsConfig.references.push({
               path: relative(dirname(_pkgJson._path), dirname(depPkgJson._path))
             });
@@ -265,14 +289,54 @@ function typecheck(cliArgs, filteredPkgJsonDict, allPkgJsonDict, solo) {
         pkgTsConfig.references.sort(refPathSort);
       }
 
+      const _pkgJsonTsConfig = _pkgJson[EMBARK_COLLECTIVE].typecheck;
+
+      if (isPlainObject(_pkgJsonTsConfig)) {
+        mergeWith(pkgTsConfig, _pkgJsonTsConfig, (_objValue, srcValue, key) => {
+          // cf. https://www.typescriptlang.org/docs/handbook/tsconfig-json.html
+          if (["exclude", "files", "include"].includes(key)) {
+            return srcValue;
+          }
+          return undefined;
+        });
+      }
+
       const pkgTsConfigPath = join(dirname(_pkgJson._path), 'tsconfig.json');
 
       if (!existsSync(pkgTsConfigPath) ||
           !isEqual(pkgTsConfig, readJsonSync(pkgTsConfigPath))) {
-        writeJsonSync(pkgTsConfigPath, pkgTsConfig, {spaces: 2});
+        writeJsonSync(
+          pkgTsConfigPath,
+          sortKeys(pkgTsConfig, {deep: true}),
+          {spaces: 2}
+        );
       }
     }
   });
+
+  const rootTsConfig = {
+    files: [],
+    references: []
+  };
+
+  Object.values(allPkgJsonDict).forEach(pkgJson => {
+    if (pkgJson[EMBARK_COLLECTIVE] && pkgJson[EMBARK_COLLECTIVE].typecheck) {
+      rootTsConfig.references.push({
+        path: relative(rootPath, dirname(pkgJson._path))
+      });
+    }
+  });
+
+  rootTsConfig.references.sort(refPathSort);
+
+  if (!existsSync(rootTsConfigPath) ||
+      !isEqual(rootTsConfig, readJsonSync(rootTsConfigPath))) {
+    writeJsonSync(
+      rootTsConfigPath,
+      sortKeys(rootTsConfig, {deep: true}),
+      {spaces: 2}
+    );
+  }
 
   if (solo) {
     const packagePath = dirname(Object.values(filteredPkgJsonDict)[0]._path);
@@ -307,16 +371,16 @@ function typecheck(cliArgs, filteredPkgJsonDict, allPkgJsonDict, solo) {
       doSolo();
     }
   } else {
-    const collectiveTsConfig = {
-      files: [],
-      references: []
-    };
-
     Object.values(filteredPkgJsonDict).forEach(pkgJson => {
       if (pkgJson[EMBARK_COLLECTIVE] && pkgJson[EMBARK_COLLECTIVE].typecheck) {
-        collectiveTsConfig.references.push({
-          path: relative(rootPath, dirname(pkgJson._path))
-        });
+        const rootRelativePath = relative(rootPath, dirname(pkgJson._path));
+        if (!collectiveTsConfig.references.some(({path}) => (
+          path == rootRelativePath
+        ))) {
+          collectiveTsConfig.references.push({
+            path: rootRelativePath
+          });
+        }
       }
     });
 
@@ -324,7 +388,11 @@ function typecheck(cliArgs, filteredPkgJsonDict, allPkgJsonDict, solo) {
 
     if (!existsSync(collectiveTsConfigPath) ||
         !isEqual(collectiveTsConfig, readJsonSync(collectiveTsConfigPath))) {
-      writeJsonSync(collectiveTsConfigPath, collectiveTsConfig, {spaces: 2});
+      writeJsonSync(
+        collectiveTsConfigPath,
+        sortKeys(collectiveTsConfig, {deep: true}),
+        {spaces: 2}
+      );
     }
 
     const doCollective = () => {

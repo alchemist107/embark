@@ -16,16 +16,19 @@
     "dist"
   ],
   "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "embark-collective": {
-    "build:node": true
+    "build:node": true,
+    "typecheck": true
   },
   "scripts": {
     "_build": "npm run solo -- build",
+    "_typecheck": "npm run solo -- typecheck",
     "ci": "npm run qa",
     "clean": "npm run reset",
     "lint": "eslint src/",
-    "qa": "npm-run-all lint _build",
-    "reset": "npx rimraf dist embark-*.tgz package",
+    "qa": "npm-run-all lint \"_typecheck -- --no-clean\" _build",
+    "reset": "npx rimraf dist embark-*.tgz package tsconfig.tsbuildinfo",
     "solo": "embark-solo"
   },
   "eslintConfig": {

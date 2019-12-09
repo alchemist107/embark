@@ -1,4 +1,4 @@
-import { Callback, Embark, Events } /* supplied by @types/embark in packages/core/typings */ from "embark";
+import { Callback, Embark, EmbarkEvents } from "embark-core";
 const { blockchain: blockchainConstants } = require("embark-core/constants");
 import { __ } from "embark-i18n";
 import { Logger } from "embark-logger";
@@ -19,7 +19,7 @@ function arrayEqual(arrayA: string[], arrayB: string[]) {
 }
 
 export default class EthAccounts extends RpcModifier {
-  constructor(embark: Embark, rpcModifierEvents: Events) {
+  constructor(embark: Embark, rpcModifierEvents: EmbarkEvents) {
     super(embark, rpcModifierEvents);
 
     this.embark.registerActionForEvent("blockchain:proxy:response", this.ethAccountsResponse.bind(this));

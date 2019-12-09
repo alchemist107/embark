@@ -25,6 +25,7 @@
     "embark": "./bin/embark"
   },
   "main": "./dist/lib/index.js",
+  "types": "./dist/lib/index.d.ts",
   "files": [
     "bin",
     "dist/bin",
@@ -33,15 +34,17 @@
     "locales"
   ],
   "embark-collective": {
-    "build:node": true
+    "build:node": true,
+    "typecheck": true
   },
   "scripts": {
     "_build": "npm run solo -- build",
+    "_typecheck": "npm run solo -- typecheck",
     "ci": "npm run qa",
     "clean": "npm run reset",
     "lint": "eslint bin/embark src/bin/ src/lib/",
-    "qa": "npm-run-all lint _build test",
-    "reset": "npx rimraf .nyc_output coverage dist embark-*.tgz package",
+    "qa": "npm-run-all lint \"_typecheck -- --no-clean\" _build test",
+    "reset": "npx rimraf .nyc_output coverage dist embark-*.tgz package tsconfig.tsbuildinfo",
     "solo": "embark-solo",
     "test": "nyc --reporter=html --reporter=json mocha \"dist/test/**/*.js\" --exit --no-timeouts --require ./scripts/test.js --require source-map-support/register"
   },
@@ -68,7 +71,6 @@
     "core-js": "3.4.3",
     "date-and-time": "0.6.2",
     "decompress": "4.2.0",
-    "deep-equal": "1.0.1",
     "embark-core": "^5.0.0-alpha.3",
     "embark-debugger": "^5.0.0-alpha.2",
     "embark-deploy-tracker": "^5.0.0-alpha.2",

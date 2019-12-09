@@ -39,7 +39,7 @@
     "deploy:site": "node site/deploy-site",
     "globalize": "node scripts/globalize",
     "lint": "node scripts/monorun --parallel lint",
-    "package": "lerna exec --stream --concurrency=1 -- npm pack",
+    "package": "lerna exec --concurrency=1 --no-private --stream -- npm pack",
     "postclean": "npx lerna clean --yes",
     "postreboot": "yarn install",
     "postreboot:full": "yarn install",

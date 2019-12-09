@@ -6,7 +6,6 @@ import { filesMatchingPattern, fileMatchesPattern } from './utils/utils';
 const path = require('path');
 const deepEqual = require('deep-equal');
 const web3 = require('web3');
-const constants = require('../constants');
 import { __ } from 'embark-i18n';
 import {
   buildUrlFromConfig,
@@ -23,10 +22,13 @@ import {
   getExternalContractUrl
 } from 'embark-utils';
 import { Logger } from 'embark-logger';
+import { readJsonSync } from 'fs-extra';
 const cloneDeep = require('lodash.clonedeep');
 const { replaceZeroAddressShorthand } = AddressUtils;
 
 import { getBlockchainDefaults, getContractDefaults } from './configDefaults';
+
+const constants = readJsonSync(path.join(__dirname, '../constants.json'));
 
 const DEFAULT_CONFIG_PATH = 'config/';
 

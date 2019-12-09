@@ -1,6 +1,5 @@
-import { waterfall } from "async";
 import chalk from "chalk";
-import { Callback, Embark, Events } /* supplied by @types/embark in packages/core/typings */ from "embark";
+import { Embark, EmbarkEvents } from "embark-core";
 import constants from "embark-core/constants.json";
 import { __ } from "embark-i18n";
 import { dappPath, escapeHtml, exit, jsonFunctionReplacer } from "embark-utils";
@@ -18,7 +17,7 @@ interface HelpDescription {
 
 export default class Console {
   private embark: Embark;
-  private events: Events;
+  private events: EmbarkEvents;
   private plugins: any;
   private version: string;
   private logger: any;

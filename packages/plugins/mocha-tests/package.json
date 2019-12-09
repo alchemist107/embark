@@ -2,7 +2,6 @@
   "name": "embark-mocha-tests",
   "version": "5.0.0-alpha.2",
   "description": "Mocha Test Runner",
-  "main": "dist/lib/index.js",
   "homepage": "https://github.com/embark-framework/embark/tree/master/packages/plugins/mocha-tests#readme",
   "repository": {
     "directory": "packages/plugins/mocha-tests",
@@ -24,16 +23,20 @@
   "files": [
     "dist"
   ],
+  "main": "./dist/lib/index.js",
+  "types": "./dist/lib/index.d.ts",
   "embark-collective": {
-    "build:node": true
+    "build:node": true,
+    "typecheck": true
   },
   "scripts": {
     "_build": "npm run solo -- build",
+    "_typecheck": "npm run solo -- typecheck",
     "ci": "npm run qa",
     "clean": "npm run reset",
     "lint": "eslint src/",
-    "qa": "npm-run-all lint _build",
-    "reset": "npx rimraf .nyc_output dist embark-*.tgz package",
+    "qa": "npm-run-all lint \"_typecheck -- --no-clean\" _build",
+    "reset": "npx rimraf .nyc_output dist embark-*.tgz package tsconfig.tsbuildinfo",
     "solo": "embark-solo",
     "test": "nyc --reporter=html --reporter=json mocha \"dist/test/**/*.js\" --exit --no-timeouts --require source-map-support/register"
   },

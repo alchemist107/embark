@@ -1,6 +1,8 @@
 import {recursiveMerge} from "embark-utils";
+import { readJsonSync } from 'fs-extra';
+import { join } from "path";
 
-const constants = require('../constants');
+const constants = readJsonSync(join(__dirname, '../constants.json'));
 
 export function getBlockchainDefaults(env) {
   const defaults = {
