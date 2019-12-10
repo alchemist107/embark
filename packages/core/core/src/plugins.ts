@@ -127,6 +127,7 @@ export class Plugins {
   }
 
   loadPlugin(pluginName, pluginConfig) {
+    // const pluginPath = dappPath('node_modules', pluginName);
     const pluginPath = dirname(findUp.sync('package.json', {
       cwd: dirname(require.resolve(pluginName, {paths: [dappPath()]}))
     }) as string);

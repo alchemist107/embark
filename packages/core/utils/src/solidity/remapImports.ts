@@ -35,7 +35,9 @@ const prepareInitialFile = async (file: File | any) => {
     return await file.content;
   }
 
-  const to = file.path.includes(dappPath(".embark")) ? path.normalize(file.path) : dappPath(".embark", file.path);
+  // remove C:\ on Windows
+  const relativePath = path.relative(path.normalize('/'), file.path);
+  const to = file.path.includes(dappPath(".embark")) ? path.normalize(file.path) : dappPath(".embark", relativePath);
   if (file.type === Types.dappFile || file.type === Types.custom) {
     if (file.resolver) {
       fs.mkdirpSync(path.dirname(to));
